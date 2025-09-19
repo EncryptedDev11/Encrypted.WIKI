@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypted Wiki</title>
+    <style>
+        :root {
+            --cyber-blue: #00f0ff;
+            --cyber-gold: #ffd700;
+            --cyber-purple: #bd00ff;
+            --cyber-red: #ff003c;
+            --dark-bg: #0a0a12;
+            --card-bg: rgba(10, 10, 30, 0.9);
+            --font-main: 'Orbitron', 'Rajdhani', sans-serif;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-main);
+            background: var(--dark-bg);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animazione di caricamento */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .lock-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin-bottom: 2rem;
+        }
+
+        .lock-body {
+            width: 80px;
+            height: 60px;
+            background: var(--cyber-gold);
+            border-radius: 15px;
+            position: relative;
+            animation: lockPulse 2s infinite;
+        }
+
+        .lock-shackle {
+            width: 20px;
+            height: 30px;
+            background: var(--cyber-gold);
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            top: -25px;
+            left: 30px;
+            animation: lockBounce 2s infinite;
+        }
+
+        @keyframes lockPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+            }
+        }
+
+        @keyframes lockBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--cyber-blue);
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .cyber-dots {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .cyber-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--cyber-blue);
+            border-radius: 50%;
+            animation: dotPulse 1.5s infinite;
+        }
+
+        .cyber-dot:nth-child(2) { animation-delay: 0.2s; }
+        .cyber-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .title-animation {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .title-letter {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(50px) rotate(10deg);
+            animation: letterAppear 0.8s forwards;
+        }
+
+        @keyframes letterAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+
+        /* Contenuto principale */
+        .main-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease;
+            min-height: 100vh;
+        }
+
+        .cyber-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                linear-gradient(45deg, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(189, 0, 255, 0.1) 0%, transparent 50%),
+                var(--dark-bg);
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.2) 0%, transparent 70%);
+            animation: float 6s infinite ease-in-out;
+        }
+
+        .glow-effect:nth-child(1) {
+            top: -250px;
+            left: -250px;
+            animation-delay: 0s;
+        }
+
+        .glow-effect:nth-child(2) {
+            bottom: -300px;
+            right: -200px;
+            background: radial-gradient(circle, rgba(189, 0, 255, 0.2) 0%, transparent 70%);
+            animation-delay: -2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--cyber-gold), var(--cyber-blue), var(--cyber-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+            animation: titleGlow 3s infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 50px rgba(255, 215, 0, 0.5); }
+            100% { text-shadow: 0 0 70px rgba(0, 240, 255, 0.7), 0 0 90px rgba(189, 0, 255, 0.5); }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--cyber-blue);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .cyber-button {
+            padding: 1.2rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .cyber-button:hover::before {
+            left: 100%;
+        }
+
+        .btn-discord {
+            background: linear-gradient(45deg, #5865F2, #7289DA);
+            color: white;
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+        }
+
+        .btn-discord:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(88, 101, 242, 0.6);
+        }
+
+        .btn-website {
+            background: linear-gradient(45deg, var(--cyber-gold), #ffed4e);
+            color: black;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-website:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+        }
+
+        .features-section {
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: var(--cyber-gold);
+            margin-bottom: 3rem;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--cyber-gold);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--cyber-blue);
+        }
+
+        .feature-title {
+            color: var(--cyber-gold);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-desc {
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        /* Sezione Bot - NOVITÀ */
+        .bot-section {
+            padding: 4rem 0;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            margin: 2rem 0;
+            border-radius: 15px;
+        }
+
+        .bot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .bot-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .bot-icon {
+            font-size: 2.5rem;
+            color: var(--cyber-blue);
+            margin-bottom: 1rem;
+        }
+
+        .bot-name {
+            color: var(--cyber-gold);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .bot-desc {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .footer-text {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+                padding: 0 1rem;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .cyber-button {
+                width: 250px;
+                text-align: center;
+            }
+            
+            .features-grid,
+            .bot-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .title-animation {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .cyber-button {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+            
+            .title-animation {
+                font-size: 2rem;
+            }
+            
+            .lock-container {
+                transform: scale(0.8);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Schermata di caricamento -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="lock-container">
+            <div class="lock-shackle"></div>
+            <div class="lock-body"></div>
+        </div>
+        
+        <div class="title-animation">
+            <span class="title-letter" style="animation-delay: 0.1s">E</span>
+            <span class="title-letter" style="animation-delay: 0.2s">N</span>
+            <span class="title-letter" style="animation-delay: 0.3s">C</span>
+            <span class="title-letter" style="animation-delay: 0.4s">R</span>
+            <span class="title-letter" style="animation-delay: 0.5s">Y</span>
+            <span class="title-letter" style="animation-delay: 0.6s">P</span>
+            <span class="title-letter" style="animation-delay: 0.7s">T</span>
+            <span class="title-letter" style="animation-delay: 0.8s">E</span>
+            <span class="title-letter" style="animation-delay: 0.9s">D</span>
+        </div>
+        
+        <div class="cyber-dots">
+            <div class="cyber-dot"></div>
+            <div class="cyber-dot"></div>
+            <div class="cyber-dot"></div>
+        </div>
+        
+        <p class="loading-text">Inizializzazione sistema...</p>
+    </div>
+
+    <!-- Contenuto principale -->
+    <div class="main-content" id="mainContent">
+        <div class="cyber-bg">
+            <div class="glow-effect"></div>
+            <div class="glow-effect"></div>
+        </div>
+
+        <div class="container">
+            <div class="hero-section">
+                <h1 class="main-title">ENCRYPTED WIKI</h1>
+                <p class="subtitle">La knowledge base completa della community Encrypted</p>
+                
+                <div class="buttons-container">
+                    <a href="https://discord.gg/CdCgHZss" class="cyber-button btn-discord" target="_blank">
+                        🚀 Unisciti al Server
+                    </a>
+                    
+                    <a href="https://encrypteddev11.github.io/Encrypted/Benvenuto.html" class="cyber-button btn-website" target="_blank">
+                        🌐 Sito Ufficiale
+                    </a>
+                </div>
+            </div>
+
+            <section class="features-section">
+                <h2 class="section-title">📚 DOCUMENTAZIONE</h2>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📖</div>
+                        <h3 class="feature-title">Guide Complete</h3>
+                        <p class="feature-desc">Tutorial dettagliati per ogni aspetto del server</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3 class="feature-title">Sistema Bot</h3>
+                        <p class="feature-desc">Documentazione completa di tutti i bot e comandi</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3 class="feature-title">Sicurezza</h3>
+                        <p class="feature-desc">Procedure di sicurezza e anti-raid</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🎮</div>
+                        <h3 class="feature-title">Gaming</h3>
+                        <p class="feature-desc">Guide per eventi e tornei gaming</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">⚙️</div>
+                        <h3 class="feature-title">Tecnologia</h3>
+                        <p class="feature-desc">Risorse tech e programmazione</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">❓</div>
+                        <h3 class="feature-title">FAQ</h3>
+                        <p class="feature-desc">Risposte alle domande frequenti</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sezione Bot Aggiunta -->
+            <section class="bot-section">
+                <h2 class="section-title">🤖 BOT DEL SERVER</h2>
+                
+                <div class="bot-grid">
+                    <div class="bot-card">
+                        <div class="bot-icon">⚙️</div>
+                        <h3 class="bot-name">Dyno</h3>
+                        <p class="bot-desc">Manutenzione e moderazione</p>
+                    </div>
+                    
+                    <div class="bot-card">
+                        <div class="bot-icon">📊</div>
+                        <h3 class="bot-name">Invite Tracker</h3>
+                        <p class="bot-desc">Monitoraggio inviti</p>
+                    </div>
+                    
+                    <div class="bot-card">
+                        <div class="bot-icon">🛡️</div>
+                        <h3 class="bot-name">Security</h3>
+                        <p class="bot-desc">Protezione da raid</p>
+                    </div>
+                    
+                    <div class="bot-card">
+                        <div class="bot-icon">📈</div>
+                        <h3 class="bot-name">Serverstats</h3>
+                        <p class="bot-desc">Statistiche server</p>
+                    </div>
+                    
+                    <div class="bot-card">
+                        <div class="bot-icon">✅</div>
+                        <h3 class="bot-name">Verifier</h3>
+                        <p class="bot-desc">Verificazione utenti</p>
+                    </div>
+                </div>
+            </section>
+
+            <footer>
+                <p class="footer-text">© 2023 ENCRYPTED WIKI - Tutti i diritti riservati</p>
+                <p class="footer-text">Documentazione ufficiale della community Encrypted</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simula il caricamento
+            setTimeout(function() {
+                const loadingScreen = document.getElementById('loadingScreen');
+                const mainContent = document.getElementById('mainContent');
+                
+                // Nasconde la schermata di caricamento
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.transform = 'scale(1.1)';
+                
+                // Mostra il contenuto principale
+                setTimeout(function() {
+                    loadingScreen.style.display = 'none';
+                    mainContent.style.opacity = '1';
+                    mainContent.style.transform = 'translateY(0)';
+                    
+                    // Animazione delle card
+                    const cards = document.querySelectorAll('.feature-card, .bot-card');
+                    cards.forEach((card, index) => {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(30px)';
+                        setTimeout(() => {
+                            card.style.transition = 'all 0.6s ease';
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, 100 * index);
+                    });
+                }, 500);
+            }, 3000); // 3 secondi di caricamento
+        });
+    </script>
+</body>
+</html>
