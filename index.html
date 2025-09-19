@@ -5,17 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Encrypted Wiki</title>
     <style>
-        body::before {
-  content: '';
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 9999;
-  background: radial-gradient(circle at var(--x, 50vw) var(--y, 50vh), rgba(255,255,200,0.4) 120px, rgba(0,0,0,0.98) 350px);
-  transition: background 0.1s;
-}
         :root {
             --cyber-blue: #00f0ff;
             --cyber-gold: #ffd700;
@@ -26,7 +15,7 @@
             --font-main: 'Orbitron', 'Rajdhani', sans-serif;
         }
         
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;500&display=swap" rel="stylesheet">
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;500&display=swap');
         
         * {
             margin: 0;
@@ -55,7 +44,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            transition: opacity 0.3s ease, transform 0.4s ease;
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
         .lock-container {
@@ -629,15 +618,6 @@
                 }, 500);
             }, 3000); // 3 secondi di caricamento
         });
-
-    <script>
-    document.addEventListener('mousemove', function(e) {
-      document.body.style.setProperty('--x', e.clientX + 'px');
-      document.body.style.setProperty('--y', e.clientY + 'px');
-    });
-    </script>
-</body>
-</html>
     </script>
 </body>
 </html>
